@@ -1,4 +1,4 @@
-const { syncAndSeed, conn, models: { Student, Sportsteam } } = require('./index');
+const { syncAndSeed, conn, models: { Member, Sportsteam } } = require('./index');
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -16,8 +16,8 @@ app.get('/', async(req, res, next) => {
         <body>
         <h1> Please pick one from below... </h1>
         <div class='homepage'>
-        <li><a href='/sportsteams'> Sportsteams </a></li>
-        <li><a href='/students'> Students </a></li>
+        <li><a href='/sportsteams'> Teams </a></li>
+        <li><a href='/members'> Captain with Members </a></li>
         </div>
         </body>
         </html>
@@ -33,7 +33,10 @@ app.get('/sportsteams', async(req, res, next) => {
     try{
         res.send(await Sportsteam.findAll({
             include : [
-                Student
+                {
+                    model : Member,
+                    as: 'coach'
+                }
             ],
             order: [
                 ['id', 'ASC']
@@ -45,19 +48,16 @@ app.get('/sportsteams', async(req, res, next) => {
     }
 })
 
-app.get('/students', async(req, res, next) => {
+app.get('/members', async(req, res, next) => {
     try{
-        res.send(await Student.findAll({
-            include : [
+        res.send(await Member.findAll({
+            include: [
                 {
-                    model: Student,
+                    model: Member,
                     as: 'captain'
                 },
-                {
-                    model: Student,
-                    as: 'teammate'
-                }
-
+                Member,
+                Sportsteam
             ]
         }));
 

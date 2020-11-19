@@ -3,22 +3,24 @@ const { STRING } = Sequelize;
 
 const conn = new Sequelize('postgres://localhost/student_sport_db');
 
-const Student = conn.define('students', {
+const Member = conn.define('member', {
     name: {
         type: STRING
     }
 });
-const Sportsteam = conn.define('sports_team', {
+const Sportsteam = conn.define('sportsteam', {
     team: {
         type: STRING
     }
 
 });
 
-Student.belongsTo(Sportsteam, { as: 'teammate' });
-Sportsteam.hasMany(Student, { foreignKey: 'teammateId' });
-Student.belongsTo(Student, { as : 'captain' });
-Student.hasMany(Student, { foreignKey: 'captainId' });
+Sportsteam.belongsTo(Member, { as: 'coach' });
+Member.hasMany(Sportsteam, { foreignKey: 'coachId' });
+
+Member.belongsTo(Member, { as: 'captain' });
+Member.hasMany(Member, { foreignKey: 'captainId' })
+
 
 
 
@@ -28,31 +30,38 @@ const syncAndSeed = async() => {
      const [ Nathan, Oscar, Kevin, Daniel, Ginni, Kawai, Joseph ] = await Promise.all([
          'Nathan', 'Oscar', 'Kevin', 'Daniel', 'Ginni', 'Kawai', 'Joseph'
      ].map( name => 
-         Student.create({name})
+         Member.create({name})
      ));
-     const studentArr = [ Kawai, Oscar, Kevin, Daniel, Ginni, Nathan, Joseph ];
+     const memberArr = [ Kawai, Oscar, Kevin, Daniel, Ginni, Nathan, Joseph ];
      const [ Basketball, Football, Soccer, Baseball ] = await Promise.all([
         'Basketball', 'Football', 'Soccer', 'Baseball'
-    ].map( name => 
-        Sportsteam.create({team:name})
+    ].map( team => 
+        Sportsteam.create({team})
     ));
-    Kevin.teammateId = Football.id;
-    Nathan.teammateId = Basketball.id;
-    Oscar.teammateId = Basketball.id;
-    Daniel.teammateId = Soccer.id;
-    Kawai.teammateId = Basketball.id;
-    Joseph.teammateId = Baseball.id;
-    
-    await Promise.all(
-        studentArr.map( student => student.save() ));
 
+        Basketball.coachId = Kawai.id;
+        Football.coachId = Kawai.id;
+        Baseball.coachId = Joseph.id;
+        await Promise.all([
+            Basketball.save(),
+            Football.save(),
+            Baseball.save()
+        ]);
+        
         Nathan.captainId = Kawai.id;
-        Oscar.captainId = Kawai.id;
+        Kevin.captainId = Kawai.id;
+        Oscar.captainId = Joseph.id;
+        Daniel.captainId = Joseph.id;
+
         await Promise.all([
             Nathan.save(),
-            Oscar.save()
+            Kevin.save(),
+            Oscar.save(),
+            Daniel.save()
         ]);
+
 };
+
 
 
 
@@ -60,7 +69,7 @@ module.exports = {
     syncAndSeed,
     conn,
     models: {
-        Student,
+        Member,
         Sportsteam
     }
 }
