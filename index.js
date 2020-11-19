@@ -30,7 +30,7 @@ const syncAndSeed = async() => {
      ].map( name => 
          Student.create({name})
      ));
-     const studentArr = [ Nathan, Oscar, Kevin, Daniel, Ginni, Kawai, Joseph ];
+     const studentArr = [ Kawai, Oscar, Kevin, Daniel, Ginni, Nathan, Joseph ];
      const [ Basketball, Football, Soccer, Baseball ] = await Promise.all([
         'Basketball', 'Football', 'Soccer', 'Baseball'
     ].map( name => 

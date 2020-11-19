@@ -52,8 +52,11 @@ app.get('/students', async(req, res, next) => {
                 {
                     model: Student,
                     as: 'captain'
+                },
+                {
+                    model: Student,
+                    as: 'teammate'
                 }
-               
 
             ]
         }));
